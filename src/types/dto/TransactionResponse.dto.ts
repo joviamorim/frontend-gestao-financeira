@@ -3,7 +3,7 @@ import { TransactionType } from "../enum/TransactionType.enum";
 
 export interface TransactionResponse {
   id: UUID;
-  transactionType: TransactionType;
+  type: TransactionType;
   amount: number;
   description: string;
   date: Date;
