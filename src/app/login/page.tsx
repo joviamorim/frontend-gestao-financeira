@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   loginRequest,
@@ -10,12 +10,19 @@ import {
 export default function LoginPage() {
   const router = useRouter();
 
-  const [isRegister, setIsRegister] = useState(false);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
 
+    if (token) {
+      router.replace("/dashboard");
+    }
+  }, [router]);
+
+
+  const [isRegister, setIsRegister] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -37,7 +44,6 @@ export default function LoginPage() {
 
       router.push("/dashboard");
     } catch (err) {
-      console.log(err);
       setError(
         isRegister
           ? "Erro ao cadastrar usuário"
