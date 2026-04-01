@@ -1,24 +1,23 @@
+import { env } from "../config/env";
 import { DeleteTransactionRequest } from "../types/dto/DeleteTransactionRequest.dto";
 import { EditTransactionRequest } from "../types/dto/EditTransactionRequest.dto";
 import { RegisterTransactionRequest } from "../types/dto/RegisterTransactionRequest.dto";
+import { TransactionPageResponse } from "../types/dto/TransactionPageResponse.dto";
 import { TransactionResponse } from "../types/dto/TransactionResponse.dto";
+
+const token = localStorage.getItem("token");
 
 export async function createTransaction(
   data: RegisterTransactionRequest
 ): Promise<TransactionResponse> {
-  const token = localStorage.getItem("token");
-
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/transactions/create`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(data),
-    }
-  );
+  const res = await fetch(`${env.apiUrl}/transactions/create`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
 
   if (!res.ok) {
     throw new Error("Erro ao criar transação");
@@ -30,22 +29,17 @@ export async function createTransaction(
 export async function deleteTransaction(
   data: DeleteTransactionRequest
 ): Promise<TransactionResponse> {
-  const token = localStorage.getItem("token");
-
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/transactions/delete`,
-    {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(data),
-    }
-  );
+  const res = await fetch(`${env.apiUrl}/transactions/delete`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
 
   if (!res.ok) {
-    throw new Error("Erro ao criar transação");
+    throw new Error("Erro ao deletar transação");
   }
 
   return res.json();
@@ -54,23 +48,73 @@ export async function deleteTransaction(
 export async function editTransaction(
   data: EditTransactionRequest
 ): Promise<TransactionResponse> {
-  const token = localStorage.getItem("token");
+  const res = await fetch(`${env.apiUrl}/transactions/update`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
 
+  if (!res.ok) {
+    throw new Error("Erro ao editar transação");
+  }
+
+  return res.json();
+}
+
+export async function fetchTransactions(): Promise<TransactionResponse[]> {
+  const res = await fetch(`${env.apiUrl}/transactions`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error("Erro ao buscar transações");
+  }
+
+  const data: TransactionPageResponse = await res.json();
+  return Array.isArray(data?.content) ? data.content : [];
+}
+
+export async function fetchTransactionsByMonth(
+  month: string
+): Promise<TransactionResponse[]> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/transactions/update`,
+    `${env.apiUrl}/transactions/filter-by-month?month=${month}`,
     {
-      method: "PUT",
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(data),
     }
   );
 
   if (!res.ok) {
-    throw new Error("Erro ao criar transação");
+    throw new Error("Erro ao buscar transações por mês");
   }
 
+  const data: TransactionPageResponse = await res.json();
+  return Array.isArray(data?.content) ? data.content : [];
+}
+
+export async function fetchIncome(): Promise<{ totalValue: number }> {
+  const res = await fetch(
+    `${env.apiUrl}/transactions/total-value-by-type?type=INCOME`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  return res.json();
+}
+
+export async function fetchExpense(): Promise<{ totalValue: number }> {
+  const res = await fetch(
+    `${env.apiUrl}/transactions/total-value-by-type?type=EXPENSE`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
   return res.json();
 }

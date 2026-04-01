@@ -1,15 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { SidebarCard } from "@/src/components/SidebarCard";
 import { TransactionsCard } from "@/src/components/TransactionsCard";
-import { TransactionPageResponse } from "@/src/types/dto/TransactionPageResponse.dto";
 import { TransactionResponse } from "@/src/types/dto/TransactionResponse.dto";
 import { BalanceCard } from "@/src/components/BalanceCard";
 import { IncomeCard } from "@/src/components/IncomeCard";
 import { ExpenseCard } from "@/src/components/ExpenseCard";
-import { TransactionTotalValueResponse } from "@/src/types/dto/TransactionTotalValueResponse.dto";
-import { TransactionType } from "@/src/types/enum/TransactionType.enum";
 import { RegisterTransactionModal } from "@/src/components/RegisterTransactionModal";
 import {
   createTransaction,
@@ -19,124 +15,22 @@ import {
 import { RegisterTransactionRequest } from "@/src/types/dto/RegisterTransactionRequest.dto";
 import { DeleteTransactionRequest } from "@/src/types/dto/DeleteTransactionRequest.dto";
 import { EditTransactionRequest } from "@/src/types/dto/EditTransactionRequest.dto";
+import { useDashboardData } from "@/src/hooks/useDashboardData";
+import { useState } from "react";
 
 export default function DashboardPage() {
-  const [balance, setBalance] = useState(0);
-  const [income, setIncome] = useState(0);
-  const [expense, setExpense] = useState(0);
-  const [transactions, setTransactions] = useState<TransactionResponse[]>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] =
     useState<TransactionResponse | null>(null);
-
-  async function fetchTransactions() {
-    const token = localStorage.getItem("token");
-
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/transactions`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data: TransactionPageResponse) => {
-        const safe = Array.isArray(data?.content) ? data.content : [];
-        setTransactions(safe);
-      })
-      .catch(() => setTransactions([]));
-  }
-
-  async function fetchDashboardData() {
-    const token = localStorage.getItem("token");
-
-    try {
-      const [balanceRes, incomeRes, expenseRes] = await Promise.all([
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/balance`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/transactions/total-value-by-type?type=INCOME`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        ),
-        fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/transactions/total-value-by-type?type=EXPENSE`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        ),
-      ]);
-
-      const balanceData = await balanceRes.json();
-      const incomeData = await incomeRes.json();
-      const expenseData = await expenseRes.json();
-
-      setBalance(balanceData.balance ?? 0);
-      setIncome(incomeData.totalValue ?? 0);
-      setExpense(expenseData.totalValue ?? 0);
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/balance`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => setBalance(data.balance))
-      .catch(() => setBalance(0));
-
-    fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/transactions/total-value-by-type?type=${TransactionType.INCOME}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    )
-      .then((res) => res.json())
-      .then((data: TransactionTotalValueResponse) => setIncome(data.totalValue))
-      .catch(() => setIncome(0));
-
-    fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/transactions/total-value-by-type?type=${TransactionType.EXPENSE}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    )
-      .then((res) => res.json())
-      .then((data: TransactionTotalValueResponse) =>
-        setExpense(data.totalValue)
-      )
-      .catch(() => setExpense(0));
-
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/transactions`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data: TransactionPageResponse) => {
-        const safe = Array.isArray(data?.content) ? data.content : [];
-        setTransactions(safe);
-      })
-      .catch(() => setTransactions([]));
-  }, []);
+  const { balance, income, expense, transactions, refetchDashboardData } =
+    useDashboardData();
 
   const handleDeleteTransaction = async (id: string) => {
     const data: DeleteTransactionRequest = { id };
     await deleteTransaction(data);
 
-    fetchTransactions();
-    await fetchDashboardData();
+    refetchDashboardData();
   };
 
   const handleSubmitTransaction = async (data: RegisterTransactionRequest) => {
@@ -152,11 +46,8 @@ export default function DashboardPage() {
         await createTransaction(data);
       }
 
-      setIsModalOpen(false);
-      setEditingTransaction(null);
-
-      fetchTransactions();
-      await fetchDashboardData();
+      handleCloseModal();
+      refetchDashboardData();
     } catch (err) {
       console.error(err);
     }
@@ -170,6 +61,11 @@ export default function DashboardPage() {
   function handleOpenEdit(transaction: TransactionResponse) {
     setEditingTransaction(transaction);
     setIsModalOpen(true);
+  }
+
+  function handleCloseModal() {
+    setIsModalOpen(false);
+    setEditingTransaction(null);
   }
 
   return (
@@ -219,10 +115,7 @@ export default function DashboardPage() {
 
       <RegisterTransactionModal
         isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setEditingTransaction(null);
-        }}
+        onClose={handleCloseModal}
         onSubmit={handleSubmitTransaction}
         initialData={editingTransaction}
       />

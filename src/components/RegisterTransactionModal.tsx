@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { TransactionType } from "@/src/types/enum/TransactionType.enum";
 import { RegisterTransactionRequest } from "../types/dto/RegisterTransactionRequest.dto";
-import { Category } from "../types/model/Category.model";
 import { TransactionResponse } from "../types/dto/TransactionResponse.dto";
+import { useTransactionForm } from "../hooks/useTransactionForm";
+import { CategoryResponse } from "../types/dto/CategoryResponse.dto";
+import { fetchCategories } from "../services/category-service";
 
 type Props = {
   isOpen: boolean;
@@ -19,63 +21,18 @@ export function RegisterTransactionModal({
   onSubmit,
   initialData,
 }: Props) {
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<CategoryResponse[]>([]);
   const isEditMode = initialData != null;
+  const { form, setForm } = useTransactionForm(isOpen, categories, initialData);
 
-  const [form, setForm] = useState({
-    description: "",
-    amount: "",
-    type: TransactionType.INCOME,
-    date: "",
-    categoryId: "",
-  });
+  function loadCategories() {
+    fetchCategories().then((data) => setCategories(data));
+  }
 
   useEffect(() => {
     if (!isOpen) return;
-
-    const token = localStorage.getItem("token");
-
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setCategories(Array.isArray(data) ? data : []);
-      })
-      .catch(() => setCategories([]));
-
-    if (initialData) {
-      return;
-    }
-
-    setForm({
-      description: "",
-      amount: "",
-      type: TransactionType.INCOME,
-      date: "",
-      categoryId: "",
-    });
+    loadCategories();
   }, [isOpen]);
-
-  useEffect(() => {
-    if (!isOpen || !initialData || categories.length === 0) return;
-
-    const category = categories.find(
-      (c) => c.name === initialData.categoryName
-    );
-
-    if (!category) return;
-
-    setForm({
-      description: initialData.description,
-      amount: initialData.amount.toString(),
-      type: initialData.type,
-      date: initialData.date.toString().slice(0, 10),
-      categoryId: category.id,
-    });
-  }, [initialData, categories, isOpen]);
 
   if (!isOpen) return null;
 

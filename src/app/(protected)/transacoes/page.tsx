@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BalanceCard } from "@/src/components/BalanceCard";
 import { ExpenseCard } from "@/src/components/ExpenseCard";
 import { IncomeCard } from "@/src/components/IncomeCard";
 import { SidebarCard } from "@/src/components/SidebarCard";
 import { TransactionsCard } from "@/src/components/TransactionsCard";
 import { TransactionResponse } from "@/src/types/dto/TransactionResponse.dto";
-import { TransactionPageResponse } from "@/src/types/dto/TransactionPageResponse.dto";
 import { RegisterTransactionModal } from "@/src/components/RegisterTransactionModal";
 import {
   createTransaction,
@@ -17,135 +16,29 @@ import {
 import { RegisterTransactionRequest } from "@/src/types/dto/RegisterTransactionRequest.dto";
 import { DeleteTransactionRequest } from "@/src/types/dto/DeleteTransactionRequest.dto";
 import { EditTransactionRequest } from "@/src/types/dto/EditTransactionRequest.dto";
-import { TransactionTotalValueResponse } from "@/src/types/dto/TransactionTotalValueResponse.dto";
-import { TransactionType } from "@/src/types/enum/TransactionType.enum";
+import { useTransactionData } from "@/src/hooks/useTransactionData";
 
 export default function TransacoesPage() {
-  const [balance, setBalance] = useState(0);
-  const [income, setIncome] = useState(0);
-  const [expense, setExpense] = useState(0);
-  const [transactions, setTransactions] = useState<TransactionResponse[]>([]);
-  const [currentDate, setCurrentDate] = useState(new Date());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] =
     useState<TransactionResponse | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : "";
-
-  function getMonthParam(date: Date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    return `${year}-${month}`;
-  }
-
-  async function fetchTransactions() {
-    const month = getMonthParam(currentDate);
-
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/transactions/filter-by-month?month=${month}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    const data: TransactionPageResponse = await res.json();
-    setTransactions(Array.isArray(data?.content) ? data.content : []);
-  }
-
-  async function fetchDashboardData() {
-    const token = localStorage.getItem("token");
-
-    try {
-      const [balanceRes, incomeRes, expenseRes] = await Promise.all([
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/balance`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/transactions/total-value-by-type?type=INCOME`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        ),
-        fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/transactions/total-value-by-type?type=EXPENSE`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        ),
-      ]);
-
-      const balanceData = await balanceRes.json();
-      const incomeData = await incomeRes.json();
-      const expenseData = await expenseRes.json();
-
-      setBalance(balanceData.balance ?? 0);
-      setIncome(incomeData.totalValue ?? 0);
-      setExpense(expenseData.totalValue ?? 0);
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/balance`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => setBalance(data.balance))
-      .catch(() => setBalance(0));
-
-    fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/transactions/total-value-by-type?type=${TransactionType.INCOME}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    )
-      .then((res) => res.json())
-      .then((data: TransactionTotalValueResponse) => setIncome(data.totalValue))
-      .catch(() => setIncome(0));
-
-    fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/transactions/total-value-by-type?type=${TransactionType.EXPENSE}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    )
-      .then((res) => res.json())
-      .then((data: TransactionTotalValueResponse) =>
-        setExpense(data.totalValue)
-      )
-      .catch(() => setExpense(0));
-
-    fetchTransactions();
-  }, [currentDate]);
-
-  function handlePrevMonth() {
-    const newDate = new Date(currentDate);
-    newDate.setMonth(newDate.getMonth() - 1);
-    setCurrentDate(newDate);
-  }
-
-  function handleNextMonth() {
-    const newDate = new Date(currentDate);
-    newDate.setMonth(newDate.getMonth() + 1);
-    setCurrentDate(newDate);
-  }
+  const {
+    balance,
+    income,
+    expense,
+    transactions,
+    currentDate,
+    refetchTransactionData,
+    handlePrevMonth,
+    handleNextMonth,
+  } = useTransactionData();
 
   async function handleDeleteTransaction(id: string) {
     const data: DeleteTransactionRequest = { id };
     await deleteTransaction(data);
-    fetchTransactions();
-    await fetchDashboardData();
+    refetchTransactionData();
   }
 
   const handleSubmitTransaction = async (data: RegisterTransactionRequest) => {
@@ -155,7 +48,6 @@ export default function TransacoesPage() {
           id: editingTransaction.id,
           ...data,
         };
-
         await editTransaction(editData);
       } else {
         await createTransaction(data);
@@ -163,9 +55,7 @@ export default function TransacoesPage() {
 
       setIsModalOpen(false);
       setEditingTransaction(null);
-
-      fetchTransactions();
-      await fetchDashboardData();
+      refetchTransactionData();
     } catch (err) {
       console.error(err);
     }
