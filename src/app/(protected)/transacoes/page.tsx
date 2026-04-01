@@ -9,7 +9,11 @@ import { TransactionsCard } from "@/src/components/TransactionsCard";
 import { TransactionResponse } from "@/src/types/dto/TransactionResponse.dto";
 import { TransactionPageResponse } from "@/src/types/dto/TransactionPageResponse.dto";
 import { RegisterTransactionModal } from "@/src/components/RegisterTransactionModal";
-import { createTransaction, deleteTransaction, editTransaction } from "@/src/services/transaction-service";
+import {
+  createTransaction,
+  deleteTransaction,
+  editTransaction,
+} from "@/src/services/transaction-service";
 import { RegisterTransactionRequest } from "@/src/types/dto/RegisterTransactionRequest.dto";
 import { DeleteTransactionRequest } from "@/src/types/dto/DeleteTransactionRequest.dto";
 import { EditTransactionRequest } from "@/src/types/dto/EditTransactionRequest.dto";
@@ -23,10 +27,12 @@ export default function TransacoesPage() {
   const [transactions, setTransactions] = useState<TransactionResponse[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingTransaction, setEditingTransaction] = useState<TransactionResponse | null>(null);
+  const [editingTransaction, setEditingTransaction] =
+    useState<TransactionResponse | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : "";
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : "";
 
   function getMonthParam(date: Date) {
     const year = date.getFullYear();
@@ -58,12 +64,18 @@ export default function TransacoesPage() {
         fetch(`${process.env.NEXT_PUBLIC_API_URL}/balance`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/transactions/total-value-by-type?type=INCOME`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/transactions/total-value-by-type?type=EXPENSE`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
+        fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/transactions/total-value-by-type?type=INCOME`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        ),
+        fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/transactions/total-value-by-type?type=EXPENSE`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        ),
       ]);
 
       const balanceData = await balanceRes.json();
@@ -80,32 +92,40 @@ export default function TransacoesPage() {
 
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/balance`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-          .then((res) => res.json())
-          .then((data) => setBalance(data.balance))
-          .catch(() => setBalance(0));
-  
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/transactions/total-value-by-type?type=${TransactionType.INCOME}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-          .then((res) => res.json())
-          .then((data: TransactionTotalValueResponse) => setIncome(data.totalValue))
-          .catch(() => setIncome(0));
-  
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/transactions/total-value-by-type?type=${TransactionType.EXPENSE}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-          .then((res) => res.json())
-          .then((data: TransactionTotalValueResponse) => setExpense(data.totalValue))
-          .catch(() => setExpense(0));
-          
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => setBalance(data.balance))
+      .catch(() => setBalance(0));
+
+    fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/transactions/total-value-by-type?type=${TransactionType.INCOME}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((data: TransactionTotalValueResponse) => setIncome(data.totalValue))
+      .catch(() => setIncome(0));
+
+    fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/transactions/total-value-by-type?type=${TransactionType.EXPENSE}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((data: TransactionTotalValueResponse) =>
+        setExpense(data.totalValue)
+      )
+      .catch(() => setExpense(0));
+
     fetchTransactions();
   }, [currentDate]);
 
@@ -161,24 +181,23 @@ export default function TransacoesPage() {
     setIsModalOpen(true);
   }
 
-  return (<div className="flex min-h-screen bg-gray-100 overflow-x-hidden ">
+  return (
+    <div className="flex min-h-screen bg-gray-100 overflow-x-hidden ">
       <button
         className="p-2 md:hidden mb-4 fixed text-indigo-800 text-4xl"
         onClick={() => setIsSidebarOpen(true)}
       >
         ☰
       </button>
-      <SidebarCard 
-        isOpen={isSidebarOpen} 
-        onClose={() => setIsSidebarOpen(false)} 
+      <SidebarCard
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
       />
 
       <main className="flex-1 flex justify-center py-10 px-4">
         <div className="w-full max-w-6xl">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-indigo-600">
-              Transações
-            </h2>
+            <h2 className="text-2xl font-bold text-indigo-600">Transações</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -189,7 +208,6 @@ export default function TransacoesPage() {
 
           <div className="bg-white rounded-2xl shadow p-4">
             <div className="flex items-center justify-between mb-4">
-
               <button
                 onClick={handlePrevMonth}
                 className="px-3 py-1 bg-indigo-600 rounded"
@@ -231,7 +249,7 @@ export default function TransacoesPage() {
         initialData={editingTransaction}
       />
 
-      <button 
+      <button
         className="fixed bottom-6 right-4 md:right-6 w-14 h-14 bg-indigo-600 text-white rounded-full shadow-xl flex items-center justify-center text-2xl z-50 hover:bg-indigo-700 hover:scale-105 active:scale-95 transition"
         onClick={handleOpenCreate}
       >

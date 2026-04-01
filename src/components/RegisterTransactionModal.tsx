@@ -17,10 +17,9 @@ export function RegisterTransactionModal({
   isOpen,
   onClose,
   onSubmit,
-  initialData
+  initialData,
 }: Props) {
   const [categories, setCategories] = useState<Category[]>([]);
-
   const isEditMode = initialData != null;
 
   const [form, setForm] = useState({
@@ -46,6 +45,18 @@ export function RegisterTransactionModal({
         setCategories(Array.isArray(data) ? data : []);
       })
       .catch(() => setCategories([]));
+
+    if (initialData) {
+      return;
+    }
+
+    setForm({
+      description: "",
+      amount: "",
+      type: TransactionType.INCOME,
+      date: "",
+      categoryId: "",
+    });
   }, [isOpen]);
 
   useEffect(() => {
@@ -97,14 +108,16 @@ export function RegisterTransactionModal({
       amount: "",
       type: TransactionType.INCOME,
       date: "",
-      categoryId: ""
+      categoryId: "",
     });
   }
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 text-gray-600">
       <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-lg">
-        <h2 className="text-xl font-bold mb-4 text-indigo-600">Nova Transação</h2>
+        <h2 className="text-xl font-bold mb-4 text-indigo-600">
+          Nova Transação
+        </h2>
 
         <div className="space-y-4">
           <select
@@ -159,10 +172,7 @@ export function RegisterTransactionModal({
         </div>
 
         <div className="flex justify-end gap-2 mt-6">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-gray-200 rounded"
-          >
+          <button onClick={onClose} className="px-4 py-2 bg-gray-200 rounded">
             Cancelar
           </button>
 

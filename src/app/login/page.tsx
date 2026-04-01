@@ -2,10 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  loginRequest,
-  registerRequest,
-} from "@/src/services/auth"
+import { loginRequest, registerRequest } from "@/src/services/auth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -17,7 +14,6 @@ export default function LoginPage() {
       router.replace("/dashboard");
     }
   }, [router]);
-
 
   const [isRegister, setIsRegister] = useState(false);
   const [name, setName] = useState("");
@@ -45,9 +41,7 @@ export default function LoginPage() {
       router.push("/dashboard");
     } catch (err) {
       setError(
-        isRegister
-          ? "Erro ao cadastrar usuário"
-          : "Email ou senha inválidos"
+        isRegister ? "Erro ao cadastrar usuário" : "Email ou senha inválidos"
       );
     } finally {
       setLoading(false);
@@ -104,20 +98,14 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          {error && (
-            <p className="text-red-500 text-sm mb-2">{error}</p>
-          )}
+          {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
 
           <button
             type="submit"
             disabled={loading}
             className="w-full bg-blue-500 text-white p-2 rounded"
           >
-            {loading
-              ? "Carregando..."
-              : isRegister
-              ? "Cadastrar"
-              : "Entrar"}
+            {loading ? "Carregando..." : isRegister ? "Cadastrar" : "Entrar"}
           </button>
         </form>
       </div>

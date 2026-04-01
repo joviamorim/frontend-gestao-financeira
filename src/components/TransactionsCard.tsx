@@ -8,7 +8,11 @@ type TransactionsCardProps = {
   onEdit: (transaction: TransactionResponse, id?: string) => void;
 };
 
-export function TransactionsCard({ transactions, onEdit, onDelete }: TransactionsCardProps) {
+export function TransactionsCard({
+  transactions,
+  onEdit,
+  onDelete,
+}: TransactionsCardProps) {
   return (
     <>
       <div className="md:hidden space-y-3">
@@ -36,8 +40,7 @@ export function TransactionsCard({ transactions, onEdit, onDelete }: Transaction
                       isIncome ? "text-green-600" : "text-red-500"
                     }`}
                   >
-                    {isIncome ? "R$" : "-R$"}{" "}
-                    {transaction.amount.toFixed(2)}
+                    {isIncome ? "R$" : "-R$"} {transaction.amount.toFixed(2)}
                   </p>
                 </div>
 
@@ -84,8 +87,7 @@ export function TransactionsCard({ transactions, onEdit, onDelete }: Transaction
           <tbody>
             {Array.isArray(transactions) && transactions.length > 0 ? (
               transactions.map((transaction) => {
-                const isIncome =
-                  transaction.type === TransactionType.INCOME;
+                const isIncome = transaction.type === TransactionType.INCOME;
 
                 return (
                   <tr key={transaction.id} className="border-t">
@@ -98,8 +100,7 @@ export function TransactionsCard({ transactions, onEdit, onDelete }: Transaction
                         isIncome ? "text-green-600" : "text-red-500"
                       }`}
                     >
-                      {isIncome ? "R$" : "-R$"}{" "}
-                      {transaction.amount.toFixed(2)}
+                      {isIncome ? "R$" : "-R$"} {transaction.amount.toFixed(2)}
                     </td>
 
                     <td className="py-2 font-semibold text-gray-600">
@@ -112,9 +113,7 @@ export function TransactionsCard({ transactions, onEdit, onDelete }: Transaction
 
                     <td className="py-2">
                       <div className="flex gap-2">
-                        <button onClick={() => onEdit(transaction)}>
-                          ✏️
-                        </button>
+                        <button onClick={() => onEdit(transaction)}>✏️</button>
                         <button onClick={() => onDelete(transaction.id)}>
                           🗑️
                         </button>

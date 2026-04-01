@@ -3,7 +3,9 @@ import { EditTransactionRequest } from "../types/dto/EditTransactionRequest.dto"
 import { RegisterTransactionRequest } from "../types/dto/RegisterTransactionRequest.dto";
 import { TransactionResponse } from "../types/dto/TransactionResponse.dto";
 
-export async function createTransaction(data: RegisterTransactionRequest): Promise<TransactionResponse> {
+export async function createTransaction(
+  data: RegisterTransactionRequest
+): Promise<TransactionResponse> {
   const token = localStorage.getItem("token");
 
   const res = await fetch(
@@ -25,7 +27,9 @@ export async function createTransaction(data: RegisterTransactionRequest): Promi
   return res.json();
 }
 
-export async function deleteTransaction(data: DeleteTransactionRequest): Promise<TransactionResponse> {
+export async function deleteTransaction(
+  data: DeleteTransactionRequest
+): Promise<TransactionResponse> {
   const token = localStorage.getItem("token");
 
   const res = await fetch(
@@ -47,7 +51,9 @@ export async function deleteTransaction(data: DeleteTransactionRequest): Promise
   return res.json();
 }
 
-export async function editTransaction(data: EditTransactionRequest): Promise<TransactionResponse> {
+export async function editTransaction(
+  data: EditTransactionRequest
+): Promise<TransactionResponse> {
   const token = localStorage.getItem("token");
 
   const res = await fetch(
