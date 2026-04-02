@@ -2,58 +2,41 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { loginRequest, registerRequest } from "@/src/services/auth";
+import { useAuthForm } from "@/src/hooks/useAuthForm";
 
 export default function LoginPage() {
   const router = useRouter();
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  const {
+    isRegister,
+    form,
+    loading,
+    error,
+    isDisabled,
+    updateField,
+    toggleMode,
+    handleSubmit,
+  } = useAuthForm();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
 
     if (token) {
       router.replace("/dashboard");
+    } else {
+      setCheckingAuth(false);
     }
   }, [router]);
 
-  const [isRegister, setIsRegister] = useState(false);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
-  async function handleSubmit(e: any) {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    try {
-      let data;
-
-      if (isRegister) {
-        data = await registerRequest(name, email, password);
-      } else {
-        data = await loginRequest(email, password);
-      }
-
-      localStorage.setItem("token", data.token);
-
-      router.push("/dashboard");
-    } catch (err) {
-      setError(
-        isRegister ? "Erro ao cadastrar usuário" : "Email ou senha inválidos"
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
+  if (checkingAuth) return null;
 
   return (
     <div className="flex items-center justify-center h-screen bg-gray-800">
       <div className="bg-white p-6 rounded shadow w-full max-w-sm text-gray-500">
         <div className="flex justify-between mb-4">
           <button
-            onClick={() => setIsRegister(false)}
+            onClick={() => toggleMode(false)}
             className={`w-1/2 p-2 text-white ${
               !isRegister ? "bg-blue-500" : "bg-gray-400"
             }`}
@@ -62,7 +45,7 @@ export default function LoginPage() {
           </button>
 
           <button
-            onClick={() => setIsRegister(true)}
+            onClick={() => toggleMode(true)}
             className={`w-1/2 p-2 text-white ${
               isRegister ? "bg-blue-500" : "bg-gray-400"
             }`}
@@ -77,8 +60,8 @@ export default function LoginPage() {
               type="text"
               placeholder="Nome"
               className="w-full mb-3 p-2 border rounded border-gray-300"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={form.name}
+              onChange={(e) => updateField("name", e.target.value)}
             />
           )}
 
@@ -86,23 +69,23 @@ export default function LoginPage() {
             type="email"
             placeholder="Email"
             className="w-full mb-3 p-2 border rounded border-gray-300"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={form.email}
+            onChange={(e) => updateField("email", e.target.value)}
           />
 
           <input
             type="password"
             placeholder="Senha"
             className="w-full mb-3 p-2 border rounded border-gray-300"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={form.password}
+            onChange={(e) => updateField("password", e.target.value)}
           />
 
           {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={isDisabled}
             className="w-full bg-blue-500 text-white p-2 rounded"
           >
             {loading ? "Carregando..." : isRegister ? "Cadastrar" : "Entrar"}

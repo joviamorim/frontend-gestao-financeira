@@ -30,7 +30,8 @@ export async function registerRequest(
   });
 
   if (!res.ok) {
-    throw new Error("Erro no cadastro");
+    const errorData = await res.json();
+    throw new Error("Erro no cadastro: " + errorData.message);
   }
 
   return res.json();
