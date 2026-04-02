@@ -20,7 +20,8 @@ export async function createTransaction(
   });
 
   if (!res.ok) {
-    throw new Error("Erro ao criar transação");
+    const errorData = await res.json();
+    throw new Error("Erro ao criar transação: " + errorData.message);
   }
 
   return res.json();
@@ -39,7 +40,8 @@ export async function deleteTransaction(
   });
 
   if (!res.ok) {
-    throw new Error("Erro ao deletar transação");
+    const errorData = await res.json();
+    throw new Error("Erro ao deletar transação: " + errorData.message);
   }
 
   return res.json();
@@ -58,7 +60,8 @@ export async function editTransaction(
   });
 
   if (!res.ok) {
-    throw new Error("Erro ao editar transação");
+    const errorData = await res.json();
+    throw new Error("Erro ao editar transação: " + errorData.message);
   }
 
   return res.json();
@@ -72,7 +75,8 @@ export async function fetchTransactions(): Promise<TransactionResponse[]> {
   });
 
   if (!res.ok) {
-    throw new Error("Erro ao buscar transações");
+    const errorData = await res.json();
+    throw new Error("Erro ao buscar transações: " + errorData.message);
   }
 
   const data: TransactionPageResponse = await res.json();
@@ -92,7 +96,8 @@ export async function fetchTransactionsByMonth(
   );
 
   if (!res.ok) {
-    throw new Error("Erro ao buscar transações por mês");
+    const errorData = await res.json();
+    throw new Error("Erro ao buscar transações por mês: " + errorData.message);
   }
 
   const data: TransactionPageResponse = await res.json();

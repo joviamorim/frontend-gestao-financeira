@@ -6,6 +6,7 @@ import {
   fetchTransactions,
 } from "../services/transaction-service";
 import { fetchBalance } from "../services/balance-service";
+import { showErrorToast } from "../helper/toast";
 
 export function useDashboardData() {
   const [balance, setBalance] = useState(0);
@@ -14,8 +15,12 @@ export function useDashboardData() {
   const [transactions, setTransactions] = useState<TransactionResponse[]>([]);
 
   async function fetchAllTransactions() {
-    const transactionData = await fetchTransactions();
-    setTransactions(transactionData);
+    try {
+      const transactionData = await fetchTransactions();
+      setTransactions(transactionData);
+    } catch (err: any) {
+      showErrorToast("Erro ao buscar transações: " + err.message);
+    }
   }
 
   async function fetchDashboardData() {
@@ -29,8 +34,8 @@ export function useDashboardData() {
       setBalance(balanceRes.balance ?? 0);
       setIncome(incomeRes.totalValue ?? 0);
       setExpense(expenseRes.totalValue ?? 0);
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      showErrorToast("Erro ao buscar dados do dashboard");
     }
   }
 

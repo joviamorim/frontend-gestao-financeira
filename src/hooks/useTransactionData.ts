@@ -6,6 +6,7 @@ import {
   fetchTransactionsByMonth,
 } from "../services/transaction-service";
 import { fetchBalance } from "../services/balance-service";
+import { showErrorToast } from "../helper/toast";
 
 export function useTransactionData() {
   const [balance, setBalance] = useState(0);
@@ -21,9 +22,13 @@ export function useTransactionData() {
   }
 
   async function fetchMonthTransactions(date: Date) {
-    const month = getMonthParam(date);
-    const transactionsData = await fetchTransactionsByMonth(month);
-    setTransactions(transactionsData);
+    try {
+      const month = getMonthParam(date);
+      const transactionsData = await fetchTransactionsByMonth(month);
+      setTransactions(transactionsData);
+    } catch (err: any) {
+      showErrorToast("Erro ao buscar transações por mês: " + err.message);
+    }
   }
 
   async function fetchTransactionData() {
@@ -38,7 +43,7 @@ export function useTransactionData() {
       setIncome(incomeRes.totalValue ?? 0);
       setExpense(expenseRes.totalValue ?? 0);
     } catch (err) {
-      console.error(err);
+      showErrorToast("Erro ao buscar dados do dashboard");
     }
   }
 

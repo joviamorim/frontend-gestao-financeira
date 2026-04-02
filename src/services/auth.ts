@@ -10,7 +10,8 @@ export async function loginRequest(email: string, password: string) {
   });
 
   if (!res.ok) {
-    throw new Error("Erro ao fazer login.");
+    const errorData = await res.json();
+    throw new Error("Erro ao fazer login: " + errorData.message);
   }
 
   return res.json();

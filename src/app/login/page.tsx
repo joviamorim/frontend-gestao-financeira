@@ -12,7 +12,6 @@ export default function LoginPage() {
     isRegister,
     form,
     loading,
-    error,
     isDisabled,
     updateField,
     toggleMode,
@@ -80,8 +79,6 @@ export default function LoginPage() {
             value={form.password}
             onChange={(e) => updateField("password", e.target.value)}
           />
-
-          {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
 
           <button
             type="submit"

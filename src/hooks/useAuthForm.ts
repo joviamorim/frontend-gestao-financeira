@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { loginRequest, registerRequest } from "@/src/services/auth";
+import { showErrorToast, showSuccessToast } from "../helper/toast";
 
 export function useAuthForm() {
   const router = useRouter();
@@ -16,7 +17,6 @@ export function useAuthForm() {
   });
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   function updateField(field: string, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -25,7 +25,6 @@ export function useAuthForm() {
   function toggleMode(mode: boolean) {
     setIsRegister(mode);
     setForm({ name: "", email: "", password: "" });
-    setError("");
   }
 
   const isDisabled =
@@ -37,7 +36,6 @@ export function useAuthForm() {
     if (loading) return;
 
     setLoading(true);
-    setError("");
 
     try {
       const data = isRegister
@@ -46,10 +44,13 @@ export function useAuthForm() {
 
       localStorage.setItem("token", data.token);
 
+      showSuccessToast(
+        isRegister ? "Cadastro realizado!" : "Login bem-sucedido!"
+      );
       router.replace("/dashboard");
       router.refresh();
     } catch (err: any) {
-      setError(
+      showErrorToast(
         err?.message ||
           (isRegister
             ? "Erro ao cadastrar usuário"
@@ -64,7 +65,6 @@ export function useAuthForm() {
     isRegister,
     form,
     loading,
-    error,
     isDisabled,
     updateField,
     toggleMode,

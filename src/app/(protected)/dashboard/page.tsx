@@ -17,6 +17,7 @@ import { DeleteTransactionRequest } from "@/src/types/dto/DeleteTransactionReque
 import { EditTransactionRequest } from "@/src/types/dto/EditTransactionRequest.dto";
 import { useDashboardData } from "@/src/hooks/useDashboardData";
 import { useState } from "react";
+import { showErrorToast, showSuccessToast } from "@/src/helper/toast";
 
 export default function DashboardPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -27,10 +28,19 @@ export default function DashboardPage() {
     useDashboardData();
 
   const handleDeleteTransaction = async (id: string) => {
-    const data: DeleteTransactionRequest = { id };
-    await deleteTransaction(data);
+    const confirmDelete = confirm(
+      "Tem certeza que deseja deletar esta transação?"
+    );
+    if (!confirmDelete) return;
 
-    refetchDashboardData();
+    try {
+      const data: DeleteTransactionRequest = { id };
+      await deleteTransaction(data);
+      showSuccessToast("Transação deletada com sucesso!");
+      refetchDashboardData();
+    } catch (err: any) {
+      showErrorToast("Erro ao deletar transação: " + err.message);
+    }
   };
 
   const handleSubmitTransaction = async (data: RegisterTransactionRequest) => {
@@ -40,16 +50,23 @@ export default function DashboardPage() {
           id: editingTransaction.id,
           ...data,
         };
-
         await editTransaction(editData);
       } else {
         await createTransaction(data);
       }
-
+      showSuccessToast(
+        editingTransaction
+          ? "Transação editada com sucesso!"
+          : "Transação criada com sucesso!"
+      );
       handleCloseModal();
       refetchDashboardData();
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      showErrorToast(
+        editingTransaction
+          ? "Erro ao editar transação: " + err.message
+          : "Erro ao criar transação: " + err.message
+      );
     }
   };
 
