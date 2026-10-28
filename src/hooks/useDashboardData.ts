@@ -14,33 +14,27 @@ export function useDashboardData() {
   const [expense, setExpense] = useState(0);
   const [transactions, setTransactions] = useState<TransactionResponse[]>([]);
 
-  async function fetchAllTransactions() {
-    try {
-      const transactionData = await fetchTransactions();
-      setTransactions(transactionData);
-    } catch (err: any) {
-      showErrorToast("Erro ao buscar transações: " + err.message);
-    }
-  }
-
   async function fetchDashboardData() {
     try {
-      const [balanceRes, incomeRes, expenseRes] = await Promise.all([
-        fetchBalance(),
-        fetchIncome(),
-        fetchExpense(),
-      ]);
+      const [balanceRes, incomeRes, expenseRes, transactionData] =
+        await Promise.all([
+          fetchBalance(),
+          fetchIncome(),
+          fetchExpense(),
+          fetchTransactions(),
+        ]);
 
       setBalance(balanceRes.balance ?? 0);
       setIncome(incomeRes.totalValue ?? 0);
       setExpense(expenseRes.totalValue ?? 0);
+      setTransactions(transactionData);
     } catch (err: any) {
       showErrorToast("Erro ao buscar dados do dashboard");
     }
   }
 
   async function refetchDashboardData() {
-    await Promise.all([fetchDashboardData(), fetchAllTransactions()]);
+    return fetchDashboardData();
   }
 
   useEffect(() => {

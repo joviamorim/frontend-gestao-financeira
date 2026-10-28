@@ -13,8 +13,7 @@ export async function loginRequest(email: string, password: string) {
     const errorData = await res.json();
     throw new Error("Erro ao fazer login: " + errorData.message);
   }
-
-  return res.json();
+  return await res.json();
 }
 
 export async function registerRequest(
@@ -35,5 +34,5 @@ export async function registerRequest(
     throw new Error("Erro no cadastro: " + errorData.message);
   }
 
-  return res.json();
+  return await res.json();
 }

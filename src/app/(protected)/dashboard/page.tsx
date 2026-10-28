@@ -12,16 +12,20 @@ import {
   deleteTransaction,
   editTransaction,
 } from "@/src/services/transaction-service";
+import { createCategory } from "@/src/services/category-service";
 import { RegisterTransactionRequest } from "@/src/types/dto/RegisterTransactionRequest.dto";
 import { DeleteTransactionRequest } from "@/src/types/dto/DeleteTransactionRequest.dto";
 import { EditTransactionRequest } from "@/src/types/dto/EditTransactionRequest.dto";
 import { useDashboardData } from "@/src/hooks/useDashboardData";
 import { useState } from "react";
 import { showErrorToast, showSuccessToast } from "@/src/helper/toast";
+import { RegisterCategoryModal } from "@/src/components/RegisterCategoryModal";
 
 export default function DashboardPage() {
+  const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] =
     useState<TransactionResponse | null>(null);
   const { balance, income, expense, transactions, refetchDashboardData } =
@@ -60,7 +64,7 @@ export default function DashboardPage() {
           : "Transação criada com sucesso!"
       );
       handleCloseModal();
-      refetchDashboardData();
+      await refetchDashboardData();
     } catch (err: any) {
       showErrorToast(
         editingTransaction
@@ -70,18 +74,30 @@ export default function DashboardPage() {
     }
   };
 
+  const handleSubmitCategory = async (name: string) => {
+    try {
+      await createCategory({ name });
+
+      showSuccessToast("Categoria criada com sucesso!");
+
+      setIsCategoryModalOpen(false);
+    } catch (err: any) {
+      showErrorToast("Erro ao criar categoria: " + err.message);
+    }
+  };
+
   function handleOpenCreate() {
     setEditingTransaction(null);
-    setIsModalOpen(true);
+    setIsTransactionModalOpen(true);
   }
 
   function handleOpenEdit(transaction: TransactionResponse) {
     setEditingTransaction(transaction);
-    setIsModalOpen(true);
+    setIsTransactionModalOpen(true);
   }
 
   function handleCloseModal() {
-    setIsModalOpen(false);
+    setIsTransactionModalOpen(false);
     setEditingTransaction(null);
   }
 
@@ -123,18 +139,50 @@ export default function DashboardPage() {
         </div>
       </main>
 
-      <button
-        className="fixed bottom-6 right-4 md:right-6 w-14 h-14 bg-indigo-600 text-white rounded-full shadow-xl flex items-center justify-center text-2xl z-50 hover:bg-indigo-700 hover:scale-105 active:scale-95 transition"
-        onClick={handleOpenCreate}
-      >
-        +
-      </button>
+      <div className="fixed bottom-6 right-4 md:right-6 z-50 flex flex-col items-end gap-3">
+        {isActionMenuOpen && (
+          <div className="flex flex-col gap-2 mb-2">
+            <button
+              className="bg-white text-gray-700 px-4 py-3 rounded-lg shadow-lg hover:bg-gray-100 transition whitespace-nowrap"
+              onClick={() => {
+                setIsActionMenuOpen(false);
+                handleOpenCreate();
+              }}
+            >
+              Nova transação
+            </button>
+
+            <button
+              className="bg-white text-gray-700 px-4 py-3 rounded-lg shadow-lg hover:bg-gray-100 transition whitespace-nowrap"
+              onClick={() => {
+                setIsActionMenuOpen(false);
+                setIsCategoryModalOpen(true);
+              }}
+            >
+              Nova categoria
+            </button>
+          </div>
+        )}
+
+        <button
+          className="w-14 h-14 bg-indigo-600 text-white rounded-full shadow-xl flex items-center justify-center text-2xl hover:bg-indigo-700 hover:scale-105 active:scale-95 transition"
+          onClick={() => setIsActionMenuOpen((prev) => !prev)}
+        >
+          {isActionMenuOpen ? "x" : "+"}
+        </button>
+      </div>
 
       <RegisterTransactionModal
-        isOpen={isModalOpen}
+        isOpen={isTransactionModalOpen}
         onClose={handleCloseModal}
         onSubmit={handleSubmitTransaction}
         initialData={editingTransaction}
+      />
+
+      <RegisterCategoryModal
+        isOpen={isCategoryModalOpen}
+        onClose={() => setIsCategoryModalOpen(false)}
+        onSubmit={handleSubmitCategory}
       />
     </div>
   );

@@ -48,15 +48,21 @@ export function SidebarCard({ isOpen, onClose }: Props) {
         <nav className="space-y-4">
           <a
             onClick={() => router.push("/dashboard")}
-            className="block text-gray-600 hover:text-indigo-500"
+            className="block text-gray-600 hover:text-indigo-500 cursor-pointer"
           >
             Dashboard
           </a>
           <a
             onClick={() => router.push("/transacoes")}
-            className="block text-gray-600 hover:text-indigo-500"
+            className="block text-gray-600 hover:text-indigo-500 cursor-pointer"
           >
             Transações
+          </a>
+          <a
+            onClick={() => router.push("/categorias")}
+            className="block text-gray-600 hover:text-indigo-500 cursor-pointer"
+          >
+            Categorias
           </a>
         </nav>
         <div className="mt-auto pt-6">
