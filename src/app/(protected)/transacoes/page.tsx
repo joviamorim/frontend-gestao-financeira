@@ -21,6 +21,7 @@ import { useTransactionData } from "@/src/hooks/useTransactionData";
 import { showErrorToast, showSuccessToast } from "@/src/helper/toast";
 import { RegisterCategoryModal } from "@/src/components/RegisterCategoryModal";
 import { createCategory } from "@/src/services/category-service";
+import { ConfirmDialog } from "@/src/components/ConfirmDialog";
 
 export default function TransacoesPage() {
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
@@ -29,6 +30,7 @@ export default function TransacoesPage() {
   const [editingTransaction, setEditingTransaction] =
     useState<TransactionResponse | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
 
   const {
     balance,
@@ -41,19 +43,25 @@ export default function TransacoesPage() {
     handleNextMonth,
   } = useTransactionData();
 
-  async function handleDeleteTransaction(id: string) {
-    const confirmDelete = confirm(
-      "Tem certeza que deseja deletar esta transação?"
-    );
-    if (!confirmDelete) return;
+  function handleDeleteTransaction(id: string) {
+  setTransactionToDelete(id);
+}
+
+  async function handleConfirmDeleteTransaction() {
+    if (!transactionToDelete) return;
 
     try {
-      const data: DeleteTransactionRequest = { id };
+      const data: DeleteTransactionRequest = {
+        id: transactionToDelete,
+      };
+
       await deleteTransaction(data);
       showSuccessToast("Transação deletada com sucesso!");
       refetchTransactionData();
     } catch (err: any) {
       showErrorToast("Erro ao deletar transação: " + err.message);
+    } finally {
+      setTransactionToDelete(null);
     }
   }
 
@@ -304,6 +312,15 @@ export default function TransacoesPage() {
         isOpen={isCategoryModalOpen}
         onClose={() => setIsCategoryModalOpen(false)}
         onSubmit={handleSubmitCategory}
+      />
+
+      <ConfirmDialog
+        isOpen={transactionToDelete !== null}
+        title="Excluir transação?"
+        description="Tem certeza de que deseja excluir esta transação? Essa ação não poderá ser desfeita."
+        confirmLabel="Excluir transação"
+        onConfirm={handleConfirmDeleteTransaction}
+        onCancel={() => setTransactionToDelete(null)}
       />
     </div>
   );

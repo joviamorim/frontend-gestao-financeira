@@ -22,6 +22,7 @@ import { createTransaction } from "@/src/services/transaction-service";
 import { CategoryResponse } from "@/src/types/dto/CategoryResponse.dto";
 import { DeleteCategoryRequest } from "@/src/types/dto/DeleteCategoryRequest.dto";
 import { RegisterTransactionRequest } from "@/src/types/dto/RegisterTransactionRequest.dto";
+import { ConfirmDialog } from "@/src/components/ConfirmDialog";
 
 export default function CategoriesPage() {
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
@@ -33,16 +34,19 @@ export default function CategoriesPage() {
     useState<CategoryResponse | null>(null);
 
   const { categories, fetchCategoryData } = useCategoriesData();
+  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
 
-  async function handleDeleteCategory(id: string) {
-    const confirmDelete = confirm(
-      "Tem certeza que deseja deletar esta categoria?"
-    );
+  function handleDeleteCategory(id: string) {
+  setCategoryToDelete(id);
+}
 
-    if (!confirmDelete) return;
+  async function handleConfirmDeleteCategory() {
+    if (!categoryToDelete) return;
 
     try {
-      const data: DeleteCategoryRequest = { id };
+      const data: DeleteCategoryRequest = {
+        id: categoryToDelete,
+      };
 
       await deleteCategory(data);
 
@@ -50,6 +54,8 @@ export default function CategoriesPage() {
       fetchCategoryData();
     } catch (err: any) {
       showErrorToast("Erro ao deletar categoria: " + err.message);
+    } finally {
+      setCategoryToDelete(null);
     }
   }
 
@@ -231,6 +237,15 @@ export default function CategoriesPage() {
         }}
         onSubmit={handleSubmitCategory}
         initialData={categoryToEdit}
+      />
+
+      <ConfirmDialog
+        isOpen={categoryToDelete !== null}
+        title="Excluir categoria?"
+        description="Tem certeza de que deseja excluir esta categoria? Essa ação não poderá ser desfeita."
+        confirmLabel="Excluir categoria"
+        onConfirm={handleConfirmDeleteCategory}
+        onCancel={() => setCategoryToDelete(null)}
       />
     </div>
   );

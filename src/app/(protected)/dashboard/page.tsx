@@ -21,6 +21,7 @@ import { useDashboardData } from "@/src/hooks/useDashboardData";
 import { useState } from "react";
 import { showErrorToast, showSuccessToast } from "@/src/helper/toast";
 import { RegisterCategoryModal } from "@/src/components/RegisterCategoryModal";
+import { ConfirmDialog } from "@/src/components/ConfirmDialog";
 
 export default function DashboardPage() {
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
@@ -31,20 +32,27 @@ export default function DashboardPage() {
     useState<TransactionResponse | null>(null);
   const { balance, income, expense, transactions, refetchDashboardData } =
     useDashboardData();
+  const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
 
-  const handleDeleteTransaction = async (id: string) => {
-    const confirmDelete = confirm(
-      "Tem certeza que deseja deletar esta transação?"
-    );
-    if (!confirmDelete) return;
+  const handleDeleteTransaction = (id: string) => {
+    setTransactionToDelete(id);
+  };
+
+  const handleConfirmDeleteTransaction = async () => {
+    if (!transactionToDelete) return;
 
     try {
-      const data: DeleteTransactionRequest = { id };
+      const data: DeleteTransactionRequest = {
+        id: transactionToDelete,
+      };
+
       await deleteTransaction(data);
       showSuccessToast("Transação deletada com sucesso!");
       refetchDashboardData();
     } catch (err: any) {
       showErrorToast("Erro ao deletar transação: " + err.message);
+    } finally {
+      setTransactionToDelete(null);
     }
   };
 
@@ -223,6 +231,15 @@ export default function DashboardPage() {
         isOpen={isCategoryModalOpen}
         onClose={() => setIsCategoryModalOpen(false)}
         onSubmit={handleSubmitCategory}
+      />
+
+      <ConfirmDialog
+        isOpen={transactionToDelete !== null}
+        title="Excluir transação?"
+        description="Tem certeza de que deseja excluir esta transação? Essa ação não poderá ser desfeita."
+        confirmLabel="Excluir transação"
+        onConfirm={handleConfirmDeleteTransaction}
+        onCancel={() => setTransactionToDelete(null)}
       />
     </div>
   );

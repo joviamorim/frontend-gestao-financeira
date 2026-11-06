@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
+import { ConfirmDialog } from "@/src/components/ConfirmDialog";
 
 type Props = {
   isOpen: boolean;
@@ -75,12 +77,13 @@ function NavIcon({ name }: { name: string }) {
 export function SidebarCard({ isOpen, onClose }: Props) {
   const pathname = usePathname();
   const router = useRouter();
+  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
 
   function handleLogout() {
-    const confirmLogout = confirm("Deseja realmente sair?");
+    setIsLogoutDialogOpen(true);
+  }
 
-    if (!confirmLogout) return;
-
+  function handleConfirmLogout() {
     localStorage.clear();
     router.replace("/login");
   }
@@ -212,6 +215,15 @@ export function SidebarCard({ isOpen, onClose }: Props) {
           </button>
         </div>
       </aside>
+      <ConfirmDialog
+        isOpen={isLogoutDialogOpen}
+        title="Deseja sair da sua conta?"
+        description="Tem certeza de que deseja encerrar sua sessão?"
+        confirmLabel="Sair"
+        cancelLabel="Cancelar"
+        onConfirm={handleConfirmLogout}
+        onCancel={() => setIsLogoutDialogOpen(false)}
+      />
     </>
   );
 }

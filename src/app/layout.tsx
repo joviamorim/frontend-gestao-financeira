@@ -48,17 +48,43 @@ export default function RootLayout({
         <ThemeProvider>
           {children}
 
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              duration: 3000,
-              style: {
-                background: "var(--card)",
-                color: "var(--foreground)",
-                border: "1px solid var(--border)",
+          
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 3000,
+            style: {
+              background: "var(--card)",
+              color: "var(--card-foreground)",
+              border: "1px solid var(--border)",
+              borderRadius: "14px",
+              padding: "14px 16px",
+              fontSize: "14px",
+              fontWeight: 500,
+              boxShadow: "0 8px 24px rgba(0, 0, 0, 0.10)",
+              maxWidth: "calc(100vw - 32px)",
+            },
+            success: {
+              iconTheme: {
+                primary: "var(--success)",
+                secondary: "var(--card)",
               },
-            }}
-          />
+              style: {
+                borderColor: "var(--success)",
+              },
+            },
+            error: {
+              iconTheme: {
+                primary: "var(--danger)",
+                secondary: "var(--card)",
+              },
+              style: {
+                borderColor: "var(--danger)",
+              },
+            },
+          }}
+        />
+
         </ThemeProvider>
       </body>
     </html>
