@@ -6,6 +6,7 @@ import { ExpenseCard } from "@/src/components/ExpenseCard";
 import { IncomeCard } from "@/src/components/IncomeCard";
 import { SidebarCard } from "@/src/components/SidebarCard";
 import { TransactionsCard } from "@/src/components/TransactionsCard";
+import { DashboardHeader } from "@/src/components/DashboardHeader";
 import { TransactionResponse } from "@/src/types/dto/TransactionResponse.dto";
 import { RegisterTransactionModal } from "@/src/components/RegisterTransactionModal";
 import {
@@ -88,9 +89,7 @@ export default function TransacoesPage() {
   const handleSubmitCategory = async (name: string) => {
     try {
       await createCategory({ name });
-
       showSuccessToast("Categoria criada com sucesso!");
-
       setIsCategoryModalOpen(false);
     } catch (err: any) {
       showErrorToast("Erro ao criar categoria: " + err.message);
@@ -113,60 +112,100 @@ export default function TransacoesPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-100 overflow-x-hidden ">
-      <button
-        className="p-2 md:hidden mb-4 fixed text-indigo-800 text-4xl"
-        onClick={() => setIsSidebarOpen(true)}
-      >
-        ☰
-      </button>
+    <div className="flex min-h-screen overflow-x-hidden bg-background text-foreground">
       <SidebarCard
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />
 
-      <main className="flex-1 flex justify-center py-10 px-4">
-        <div className="w-full max-w-6xl">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-indigo-600">Transações</h2>
-          </div>
+      <main className="min-w-0 flex-1 px-4 py-5 sm:px-6 sm:py-8 lg:px-10">
+        <div className="mx-auto w-full max-w-7xl">
+          <DashboardHeader
+            onMenuClick={() => setIsSidebarOpen(true)}
+          />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <section className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
             <BalanceCard balance={balance} />
             <IncomeCard income={income} />
             <ExpenseCard expense={expense} />
-          </div>
+          </section>
 
-          <div className="bg-white rounded-2xl shadow p-4">
-            <div className="flex items-center justify-between mb-4">
+          <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+            <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-4 sm:px-6">
+              <div className="min-w-0">
+                <h2 className="text-lg font-semibold text-card-foreground">
+                  Movimentações
+                </h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Consulte suas receitas e despesas por mês.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between gap-3 border-b border-border bg-background/50 px-4 py-3 sm:px-6">
               <button
+                type="button"
                 onClick={handlePrevMonth}
-                className="px-3 py-1 bg-indigo-600 rounded"
+                aria-label="Mês anterior"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground transition hover:bg-secondary hover:text-foreground"
               >
-                ←
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="m15 18-6-6 6-6" />
+                </svg>
               </button>
 
-              <h3 className="text-lg font-semibold text-indigo-600">
-                {currentDate.toLocaleDateString("pt-BR", {
-                  month: "long",
-                  year: "numeric",
-                })}
-              </h3>
+              <div className="min-w-0 text-center">
+                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Período selecionado
+                </p>
+                <h3 className="mt-0.5 truncate text-base font-semibold capitalize text-foreground sm:text-lg">
+                  {currentDate.toLocaleDateString("pt-BR", {
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </h3>
+              </div>
 
               <button
+                type="button"
                 onClick={handleNextMonth}
-                className="px-3 py-1 bg-indigo-600 rounded"
+                aria-label="Próximo mês"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground transition hover:bg-secondary hover:text-foreground"
               >
-                →
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="m9 18 6-6-6-6" />
+                </svg>
               </button>
             </div>
 
-            <TransactionsCard
-              transactions={transactions}
-              onDelete={handleDeleteTransaction}
-              onEdit={handleOpenEdit}
-            />
-          </div>
+            <div className="p-3 sm:p-6">
+              <TransactionsCard
+                transactions={transactions}
+                onDelete={handleDeleteTransaction}
+                onEdit={handleOpenEdit}
+              />
+            </div>
+          </section>
         </div>
       </main>
 
@@ -253,7 +292,6 @@ export default function TransacoesPage() {
           </svg>
         </button>
       </div>
-
 
       <RegisterTransactionModal
         isOpen={isTransactionModalOpen}

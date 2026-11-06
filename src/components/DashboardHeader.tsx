@@ -4,9 +4,15 @@ import { useTheme } from "@/src/contexts/ThemeContext";
 
 type Props = {
   onMenuClick: () => void;
+  title?: string;
+  subtitle?: string;
 };
 
-export function DashboardHeader({ onMenuClick }: Props) {
+export function DashboardHeader({
+  onMenuClick,
+  title = "Visão geral",
+  subtitle = "Acompanhe e organize suas finanças.",
+}: Props) {
   const { theme, toggleTheme } = useTheme();
 
   return (
@@ -33,10 +39,10 @@ export function DashboardHeader({ onMenuClick }: Props) {
 
         <div className="min-w-0">
           <h1 className="truncate text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-            Visão geral
+            {title}
           </h1>
           <p className="mt-1 hidden text-sm text-muted-foreground sm:block">
-            Acompanhe e organize suas finanças.
+            {subtitle}
           </p>
         </div>
       </div>

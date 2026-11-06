@@ -11,83 +11,115 @@ export function CategoriesCard({
   onEdit,
   onDelete,
 }: CategoriesCardProps) {
+  const hasCategories =
+    Array.isArray(categories) && categories.length > 0;
+
   return (
-    <>
-      <div className="md:hidden space-y-3">
-        {Array.isArray(categories) && categories.length > 0 ? (
-          categories.map((category) => {
-            return (
-              <div key={category.id} className="bg-white p-4 rounded-xl shadow">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="font-semibold text-gray-800">
-                      {category.name}
-                    </p>
-                  </div>
+    <div>
+      {hasCategories ? (
+        <div className="divide-y divide-border">
+          {categories.map((category) => (
+            <div
+              key={category.id}
+              className="flex items-center justify-between gap-3 py-4 first:pt-0 last:pb-0"
+            >
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary">
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11l9 9-7 7-9-9V5.5Z" />
+                    <circle cx="7.5" cy="7.5" r="1" />
+                  </svg>
                 </div>
 
-                <div className="flex gap-4 mt-3">
-                  <button
-                    onClick={() => onEdit(category)}
-                    className="text-indigo-600 text-sm"
-                  >
-                    Editar
-                  </button>
-                  <button
-                    onClick={() => onDelete(category.id)}
-                    className="text-red-500 text-sm"
-                  >
-                    Excluir
-                  </button>
-                </div>
+                <p className="truncate text-sm font-semibold text-card-foreground sm:text-base">
+                  {category.name}
+                </p>
               </div>
-            );
-          })
-        ) : (
-          <p className="text-gray-500 text-center">
-            Nenhuma categoria encontrada.
+
+              <div className="flex shrink-0 items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => onEdit(category)}
+                  aria-label={`Editar categoria ${category.name}`}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-secondary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="m16 4 4 4M4 20l4-.8L19 8a2.1 2.1 0 0 0-3-3L5 16l-1 4Z" />
+                  </svg>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => onDelete(category.id)}
+                  aria-label={`Excluir categoria ${category.name}`}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-danger/10 hover:text-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M3 6h18M8 6V4h8v2m3 0-1 14H6L5 6m4 4v6m6-6v6" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
+          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary text-muted-foreground">
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.7"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11l9 9-7 7-9-9V5.5Z" />
+              <circle cx="7.5" cy="7.5" r="1" />
+            </svg>
+          </div>
+
+          <h3 className="text-base font-semibold text-card-foreground">
+            Nenhuma categoria encontrada
+          </h3>
+
+          <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+            Suas categorias aparecerão aqui quando forem cadastradas.
           </p>
-        )}
-      </div>
-
-      <div className="hidden md:block overflow-x-auto">
-        <table className="w-full min-w-[600px]">
-          <thead>
-            <tr className="text-left text-gray-700">
-              <th className="py-2">Categoria</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {Array.isArray(categories) && categories.length > 0 ? (
-              categories.map((category) => {
-                return (
-                  <tr key={category.id} className="border-t">
-                    <td className="py-2 font-semibold text-gray-600">
-                      {category.name}
-                    </td>
-
-                    <td className="py-2">
-                      <div className="flex gap-2">
-                        <button onClick={() => onEdit(category)}>✏️</button>
-                        <button onClick={() => onDelete(category.id)}>
-                          🗑️
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })
-            ) : (
-              <tr>
-                <td className="py-4 text-center" colSpan={5}>
-                  Nenhuma categoria encontrada.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </>
+        </div>
+      )}
+    </div>
   );
 }

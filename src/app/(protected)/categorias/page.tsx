@@ -1,41 +1,51 @@
 "use client";
 
+import { useState } from "react";
+
+import { DashboardHeader } from "@/src/components/DashboardHeader";
+import { SidebarCard } from "@/src/components/SidebarCard";
 import { CategoriesCard } from "@/src/components/CategoriesCard";
 import { RegisterCategoryModal } from "@/src/components/RegisterCategoryModal";
 import { RegisterTransactionModal } from "@/src/components/RegisterTransactionModal";
-import { SidebarCard } from "@/src/components/SidebarCard";
+
 import { showErrorToast, showSuccessToast } from "@/src/helper/toast";
 import { useCategoriesData } from "@/src/hooks/useCategoriesData";
+
 import {
   createCategory,
   deleteCategory,
   editCategory,
 } from "@/src/services/category-service";
+
 import { createTransaction } from "@/src/services/transaction-service";
+
 import { CategoryResponse } from "@/src/types/dto/CategoryResponse.dto";
 import { DeleteCategoryRequest } from "@/src/types/dto/DeleteCategoryRequest.dto";
 import { RegisterTransactionRequest } from "@/src/types/dto/RegisterTransactionRequest.dto";
-import { useState } from "react";
 
 export default function CategoriesPage() {
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [categoryToEdit, setCategoryToEdit] = useState<CategoryResponse | null>(
-    null
-  );
+
+  const [categoryToEdit, setCategoryToEdit] =
+    useState<CategoryResponse | null>(null);
+
   const { categories, fetchCategoryData } = useCategoriesData();
 
   async function handleDeleteCategory(id: string) {
     const confirmDelete = confirm(
       "Tem certeza que deseja deletar esta categoria?"
     );
+
     if (!confirmDelete) return;
 
     try {
       const data: DeleteCategoryRequest = { id };
+
       await deleteCategory(data);
+
       showSuccessToast("Categoria deletada com sucesso!");
       fetchCategoryData();
     } catch (err: any) {
@@ -66,9 +76,12 @@ export default function CategoriesPage() {
     }
   };
 
-  const handleSubmitTransaction = async (data: RegisterTransactionRequest) => {
+  const handleSubmitTransaction = async (
+    data: RegisterTransactionRequest
+  ) => {
     try {
       await createTransaction(data);
+
       showSuccessToast("Transação criada com sucesso!");
       setIsTransactionModalOpen(false);
     } catch (err: any) {
@@ -76,34 +89,32 @@ export default function CategoriesPage() {
     }
   };
 
-  function handleOpenCreate() {
-    setIsTransactionModalOpen(true);
-  }
-
-  function handleCloseModal() {
-    setIsTransactionModalOpen(false);
-  }
-
   return (
-    <div className="flex min-h-screen bg-gray-100 overflow-x-hidden ">
-      <button
-        className="p-2 md:hidden mb-4 fixed text-indigo-800 text-4xl"
-        onClick={() => setIsSidebarOpen(true)}
-      >
-        ☰
-      </button>
+    <div className="flex min-h-screen overflow-x-hidden bg-background text-foreground">
       <SidebarCard
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />
 
-      <main className="flex-1 flex justify-center py-10 px-4">
-        <div className="w-full max-w-6xl">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-indigo-600">Categorias</h2>
-          </div>
+      <main className="min-w-0 flex-1 px-4 py-5 sm:px-6 sm:py-8 lg:px-10">
+        <div className="mx-auto w-full max-w-7xl">
+          <DashboardHeader
+            onMenuClick={() => setIsSidebarOpen(true)}
+            title="Categorias"
+            subtitle="Organize suas receitas e despesas."
+          />
 
-          <div className="bg-white rounded-2xl shadow p-4">
+          <section className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-6">
+            <div className="mb-5">
+              <h2 className="text-lg font-semibold text-card-foreground">
+                Suas categorias
+              </h2>
+
+              <p className="mt-1 text-sm text-muted-foreground">
+                Gerencie as categorias utilizadas nas suas movimentações.
+              </p>
+            </div>
+
             <CategoriesCard
               categories={categories}
               onDelete={handleDeleteCategory}
@@ -112,10 +123,11 @@ export default function CategoriesPage() {
                 setIsCategoryModalOpen(true);
               }}
             />
-          </div>
+          </section>
         </div>
       </main>
 
+      {/* Menu de ações */}
       <div className="fixed bottom-6 right-4 z-40 flex flex-col items-end gap-3 md:right-6">
         {isActionMenuOpen && (
           <div className="flex flex-col gap-2">
@@ -123,7 +135,7 @@ export default function CategoriesPage() {
               type="button"
               onClick={() => {
                 setIsActionMenuOpen(false);
-                handleOpenCreate();
+                setIsTransactionModalOpen(true);
               }}
               className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium text-foreground shadow-lg transition hover:bg-secondary"
             >
@@ -142,6 +154,7 @@ export default function CategoriesPage() {
                   <path d="M12 5v14m-7-7h14" />
                 </svg>
               </span>
+
               Nova transação
             </button>
 
@@ -169,6 +182,7 @@ export default function CategoriesPage() {
                   <circle cx="7.5" cy="7.5" r="1" />
                 </svg>
               </span>
+
               Nova categoria
             </button>
           </div>
@@ -179,7 +193,7 @@ export default function CategoriesPage() {
           aria-label={isActionMenuOpen ? "Fechar ações" : "Abrir ações"}
           aria-expanded={isActionMenuOpen}
           onClick={() => setIsActionMenuOpen((prev) => !prev)}
-          className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20 transition hover:bg-primary-hover hover:scale-105 active:scale-95"
+          className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20 transition hover:scale-105 hover:bg-primary-hover active:scale-95"
         >
           <svg
             width="26"
@@ -200,14 +214,15 @@ export default function CategoriesPage() {
         </button>
       </div>
 
-
+      {/* Modal de transação */}
       <RegisterTransactionModal
         isOpen={isTransactionModalOpen}
-        onClose={handleCloseModal}
+        onClose={() => setIsTransactionModalOpen(false)}
         onSubmit={handleSubmitTransaction}
         initialData={null}
       />
 
+      {/* Modal de categoria */}
       <RegisterCategoryModal
         isOpen={isCategoryModalOpen}
         onClose={() => {
