@@ -40,36 +40,92 @@ export function RegisterCategoryModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 text-gray-600">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-lg">
-        <h2 className="text-xl font-bold mb-4 text-indigo-600">
-          {initialData ? "Editar Categoria" : "Nova Categoria"}
-        </h2>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+      onClick={handleClose}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="category-modal-title"
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-md rounded-2xl border border-border bg-card p-5 shadow-2xl sm:p-7"
+      >
+        <div className="mb-6 flex items-start justify-between gap-4">
+          <div>
+            <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-primary-soft text-primary">
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11l9 9-7 7-9-9V5.5Z" />
+                <circle cx="7.5" cy="7.5" r="1" />
+              </svg>
+            </div>
 
-        <div className="space-y-4">
+            <h2
+              id="category-modal-title"
+              className="text-xl font-bold text-foreground"
+            >
+              {initialData ? "Editar categoria" : "Nova categoria"}
+            </h2>
+
+            <p className="mt-1 text-sm text-muted-foreground">
+              Organize suas movimentações por categoria.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleClose}
+            aria-label="Fechar modal"
+            className="rounded-lg p-2 text-muted-foreground transition hover:bg-secondary hover:text-foreground"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div>
+          <label
+            htmlFor="category-name"
+            className="mb-2 block text-sm font-medium text-foreground"
+          >
+            Nome da categoria
+          </label>
+
           <input
+            id="category-name"
             type="text"
             name="name"
-            placeholder="Nome da categoria"
+            placeholder="Ex.: Alimentação"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full border p-2 rounded"
+            className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-ring/20"
           />
         </div>
 
-        <div className="flex justify-end gap-2 mt-6">
+        <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <button
+            type="button"
             onClick={handleClose}
-            className="px-4 py-2 bg-gray-200 rounded"
+            className="rounded-xl border border-border px-5 py-3 text-sm font-medium text-foreground transition hover:bg-secondary"
           >
             Cancelar
           </button>
 
           <button
+            type="button"
             onClick={handleSubmit}
-            className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+            className="rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary-hover"
           >
-            {initialData ? "Atualizar" : "Salvar"}
+            {initialData ? "Salvar alterações" : "Criar categoria"}
           </button>
         </div>
       </div>
